@@ -140,7 +140,7 @@ export default function HairTextureForm() {
       <div className="space-y-4">
         <Label htmlFor="texture" className="block mb-1">髪質</Label>
         <div className="flex flex-wrap gap-2">
-          {["細い","直毛","太い","猫っけ","捻転毛"].map(option => (
+          {["剛毛","直毛","猫っけ","捻転毛", "うねり"].map(option => (
             <div key={option} className="flex items-center space-x-2">
               <Checkbox id={option} checked={form.texture.includes(option)} onCheckedChange={() => handleCheckboxChange("texture", option)} />
               <Label htmlFor={option}>{option}</Label>
