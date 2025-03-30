@@ -66,3 +66,18 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh; /* 画面の高さ分の最小高さを確保 */
+  font-family: sans-serif;
+}
+
+/* 768px以上の画面幅を持つデバイスの場合 */
+@media screen and (min-width: 768px) {
+  body {
+    font-size: 18px;
+  }
+}

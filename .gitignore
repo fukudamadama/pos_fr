@@ -1,7 +1,7 @@
-# # github workflows
-# .github/
+github workflows
+.github/
 
-# dependencies
+dependencies
 /node_modules
 /.pnp
 .pnp.js
