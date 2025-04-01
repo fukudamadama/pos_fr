@@ -22,6 +22,7 @@ dependencies
 *.pem
 .env
 .env*.local
+.env.local
 
 # debug
 npm-debug.log*

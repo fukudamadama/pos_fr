@@ -13,7 +13,7 @@ export default function HairTextureForm() {
     age: "",
     gender: "",
     density: "",
-    hairLoss: "",
+    hair_loss: "",
     scalp: [],
     thickness: "",
     texture: [],
@@ -38,17 +38,38 @@ export default function HairTextureForm() {
     form.age &&
     form.gender &&
     form.density &&
-    form.hairLoss &&
+    form.hair_loss &&
     form.scalp.length > 0 &&
     form.thickness &&
     form.texture.length > 0 &&
     form.firmness;
 
+    const handleSubmit = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/hairQuality`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...form,
+            age: Number(form.age),
+          }),
+        });
+  
+        if (!response.ok) throw new Error("送信失敗");
+  
+        const result = await response.json();
+        console.log("送信成功:", result);
+        alert("送信が完了しました！");
+      } catch (err) {
+        console.error("送信エラー:", err);
+        alert("送信に失敗しました");
+      }
+    };
+  
   return (
     <div className="max-w-md mx-auto p-4 space-y-6">
-      <Link href="/">
-        <Button variant="ghost" className="text-left p-0">🏠</Button>
-      </Link>
       <h1 className="text-2xl font-bold">髪の質感診断</h1>
       <p className="text-gray-600">美容師さんからみたお客様の髪の質感</p>
 
@@ -96,14 +117,14 @@ export default function HairTextureForm() {
       <div className="space-y-4">
         <Label className="block mb-1">抜け毛の状態</Label>
         <RadioGroup 
-          value={form.hairLoss}
-          onValueChange={(value) => handleChange("hairLoss", value)}
+          value={form.hair_loss}
+          onValueChange={(value) => handleChange("hair_loss", value)}
           className="flex gap-4"
           >
           {['とてもある','少しある','ない'].map(option => (
             <div key={option} className="flex items-center space-x-2">
-              <RadioGroupItem value={option} id={`hairLoss-${option}`} />
-              <Label htmlFor={`hairLoss-${option}`}>{option}</Label>
+              <RadioGroupItem value={option} id={`hair_loss-${option}`} />
+              <Label htmlFor={`hair_loss-${option}`}>{option}</Label>
             </div>
           ))}
         </RadioGroup>
@@ -165,38 +186,9 @@ export default function HairTextureForm() {
         </RadioGroup>
       </div>
 
-      <Button className="w-full" disabled={!isFormValid}>次へ</Button>
+      <Button className="w-full" disabled={!isFormValid} onClick={handleSubmit}>
+        次へ
+      </Button>
     </div>
   );
 }
-
-
-
-// import OneCustomerInfoCard from "@/app/components/one_customer_info_card.jsx";
-// import BackButton from "./back_button";
-// import fetchCustomer from "./fetchCustomer";
-// import { useEffect, useState, use } from "react";
-
-// export default function ReadPage(props) {
-//   const params = use(props.params);
-//   const id = params.id;
-
-//   const [customerInfo, setCustomerInfo] = useState([]);
-
-//   useEffect(() => {
-//     const fetchAndSetCustomer = async () => {
-//       const customerData = await fetchCustomer(id);
-//       setCustomerInfo(customerData);
-//     };
-//     fetchAndSetCustomer();
-//   }, []);
-
-//   return (
-//     <>
-//       <div className="card bordered bg-white border-blue-200 border-2 max-w-sm m-4">
-//         <OneCustomerInfoCard {...customerInfo} />
-//         <BackButton>戻る</BackButton>
-//       </div>
-//     </>
-//   );
-// }
