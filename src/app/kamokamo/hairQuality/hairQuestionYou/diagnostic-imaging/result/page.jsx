@@ -219,7 +219,7 @@ function ResultPage() {
         <div className="flex flex-col gap-4">
           <button 
             onClick={() => handleExternalLink('https://oops-jp.com/hair/')}
-            className="w-full border-2 border-[#A2D7DB] text-[#24585C] py-4 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-[#A2D7DB] hover:text-white transition-colors"
+            className="w-full bg-[#A2D7DB] border-2 border-[#A2D7DB] text-[#24585C] py-4 rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-[#A2D7DB] hover:text-white transition-colors"
           >
             <ExternalLink size={20} />
             薄毛予防について詳しく知る
