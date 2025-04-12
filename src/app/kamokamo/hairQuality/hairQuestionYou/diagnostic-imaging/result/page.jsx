@@ -1,5 +1,5 @@
 "use client";
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import React from 'react';
 import {
   Baby,
@@ -27,19 +27,28 @@ const lifestyleRisks = [
   { label: '生活習慣', level: 'low' },
 ];
 
-const diagnosisResult = {
-  label: 'hagekamo',
-  score: 'B',
-  aiComment: '薄毛予備軍かも。でも大丈夫！今から継続的なケアで改善をしていきましょう。生活習慣は良好なので、このまま継続でOKです！素晴らしい！ストレスが要注意と出ています。日々の頑張りが出てしまっているのかも。自分を労る時間を作ってみましょう',
-};
-
 function ResultPage() {
-  // ルーターを使えるようにする
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const rawAnswer = searchParams.get("answer");
+  let parsedAnswer = null;
+  try {
+    parsedAnswer = JSON.parse(JSON.parse(rawAnswer).answer); // 二重JSONを解凍
+  } catch (e) {
+    console.error("診断データの読み取りに失敗しました", e);
+  }
+
+  const diagnosisResult = parsedAnswer || {
+    score: '-',
+    feedback: '診断データを取得できませんでした。もう一度お試しください。',
+  };
+
+  console.log("受け取った診断データ:", parsedAnswer);
 
   const handleExternalLink = (url) => {
     window.open(url, '_blank');
-  };  
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -116,7 +125,7 @@ function ResultPage() {
 
           <div className="bg-gray-50 rounded-lg p-4">
           <p className="leading-relaxed" style={{ color: '#24585C' }}>
-            {diagnosisResult.aiComment}
+            {diagnosisResult.feedback}
           </p>
           </div>
         </div>
