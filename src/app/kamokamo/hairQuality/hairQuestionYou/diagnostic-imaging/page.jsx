@@ -11,11 +11,13 @@ export default function DiagnosticCheckPage() {
   // 撮影後のBase64画像
   const [imageData, setImageData] = useState(null);
 
-  // カメラ起動
+  // カメラ起動（アウトカメラを優先して指定）
   useEffect(() => {
     const startCamera = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: 'environment' } }
+        });
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
         }
@@ -79,14 +81,27 @@ export default function DiagnosticCheckPage() {
   };
 
   // 「再撮影」ボタン
-  const handleRetake = () => {
+  // カメラをもう一度起動するようにする
+  const handleRetake = async () => {
     setIsCaptured(false);
     setImageData(null);
+
+    // 再撮影時にもカメラを再度起動して videoRef にセット
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' } }
+      });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (error) {
+      console.error('再撮影時のカメラ起動に失敗しました:', error);
+    }
   };
 
   return (
     <div style={{ textAlign: 'center', padding: '20px' }}>
-      <h2>後頭部診断</h2>
+      <h2>頭頂部撮影</h2>
 
       {/* 常にDOMにcanvasを配置しておく（撮影時に使用） */}
       <canvas ref={canvasRef} style={{ display: 'none' }} />
