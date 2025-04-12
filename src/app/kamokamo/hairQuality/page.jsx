@@ -201,9 +201,10 @@ import { ChevronDown } from "lucide-react"
 import { Label } from "../../components/label"; //backend直したら消す
 import { Input } from "../../components/input"; //backend直したら消す
 import { RadioGroup, RadioGroupItem } from "../../components/radio-group"; //backend直したら消す
-
+import { useRouter } from 'next/navigation';
 
 export default function HairQuality() {
+  const router = useRouter();
   const [form, setForm] = useState({
     nickname: "",
     age: "",
@@ -245,30 +246,27 @@ export default function HairQuality() {
     form.texture.length > 0 &&
     form.firmness
 
-  const handleSubmit = async () => {
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/hairQuality`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...form,
-        }),
-      })
-
-      if (!response.ok) throw new Error("送信失敗")
-
-      const result = await response.json()
-      console.log("送信成功:", result)
-      // 送信成功後、指定されたURLに遷移
-      window.location.href =
-        "https://app-002-step3-2-node-oshima2.azurewebsites.net/kamokamo/hairQuality/hairQuestionYou"
-    } catch (err) {
-      console.error("送信エラー:", err)
-      alert("送信に失敗しました")
-    }
-  }
+    const handleSubmit = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/hairQuality`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ...form }),
+        });
+    
+        if (!response.ok) {
+          throw new Error("データの送信に失敗しました");
+        }
+    
+        // 保存成功 → 遷移
+        router.push("/kamokamo/hairQuality/hairQuestionYou");
+      } catch (error) {
+        console.error("送信エラー:", error);
+        alert("送信に失敗しました。もう一度お試しください。");
+      }
+    };    
 
   // 各フィールドのオプション
   const options = {
