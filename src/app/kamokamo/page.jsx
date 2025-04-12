@@ -1,167 +1,93 @@
-"use client"; // App Routerでクライアントコンポーネントを使う場合
+"use client"
+// 20250405これ以降が追記部分
+import Image from "next/image"
+import Link from "next/link"
+import styles from "./page.module.css"
 
-import Head from 'next/head'
-import Image from 'next/image'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-
-export default function Home() {
-  const router = useRouter();
-
-  // ボタンクリック時にページ遷移する
-  const handleHairCheck = () => {
-    router.push('/hairQuality');  // ふくちゃんページへ遷移
-  };
-
-  const handleAiCheck = () => {
-    router.push('/aiKamokamo');    // aiチェックページへ遷移
-  };
-
+export default function WelcomePage() {
   return (
-    <>
-      <Head>
-        <title>かもかも診断</title>
-        <meta
-          name="description"
-          content="あなたの髪の毛の今と将来をAIで診断するアプリ"
-        />
-      </Head>
+    <div className={styles.container}>
+      {/* 背景デザイン */}
+      <div className={styles.backgroundDesign}>
+        <div className={styles.topLeftBubble}></div>
+        <div className={styles.bottomRightBubble}></div>
+        <div className={styles.smallBubble1}></div>
+        <div className={styles.smallBubble2}></div>
+        <div className={styles.smallBubble3}></div>
+      </div>
 
-      {/* 全体をラップするコンテナ */}
-      <div
-        style={{
-          width: '100%',
-          maxWidth: '480px',
-          margin: '0 auto',
-          padding: '1rem',
-        }}
-      >
-        {/* ヘッダー部分 */}
-        <header
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            marginBottom: '1rem',
-          }}
-        >
-          {/* 
-            <Link href="/">
-              <Image
-                src="/icons/home.svg"
-                alt="home icon"
-                width={32}
-                height={32}
-                style={{ marginRight: '8px', cursor: 'pointer' }}
-              />
-            </Link> 
-          */}
-          <h1 style={{ fontSize: '1.25rem', margin: 0 }}>かもかも診断</h1>
-        </header>
+      {/* メインコンテンツ */}
+      <div className={styles.mainContent}>
+        <h1 className={styles.title}>
+          あなたの髪の毛の今と将来を
+          <br />
+          AIで診断するアプリ
+        </h1>
 
-        {/* メイン内容 */}
-        <main>
-          <p style={{ fontSize: '0.9rem', marginBottom: '1rem' }}>
-            あなたの髪の毛の今と将来をAIで診断するアプリ
-          </p>
+        <h2 className={styles.appName}>かもかも診断</h2>
 
-          {/* キャラクター画像＋キャッチコピー */}
-          <div
-            style={{
-              textAlign: 'center',
-              marginBottom: '2rem',
-            }}
+        {/* キャラクター画像＋キャッチコピー */}
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <div style={{ display: 'inline-block', marginRight: '16px' }}>
+            <Image
+              src="/images/kamo1.png"
+              alt="かも(緑)"
+              width={80}
+              height={80}
+              style={{
+                animation: 'float 1s ease-in-out infinite',
+              }}
+            />
+          </div>
+          <div style={{ display: 'inline-block' }}>
+            <Image
+              src="/images/kamo2.png"
+              alt="かも(灰)"
+              width={80}
+              height={80}
+              style={{
+                animation: 'float 2s ease-in-out infinite',
+              }}
+            />
+          </div>
+        </div>
+
+        {/* アニメーション用CSS */}
+        <style jsx global>{`
+          @keyframes float {
+            0% {
+              transform: translateY(0px);
+            }
+            50% {
+              transform: translateY(-8px);
+            }
+            100% {
+              transform: translateY(0px);
+            }
+          }
+        `}</style>
+
+        {/* ボタンとリンク */}
+        <div className={styles.buttonsContainer}>
+          <Link
+            href="https://app-002-step3-2-node-oshima2.azurewebsites.net/kamokamo/hairQuality"
+            className={styles.startButton}
           >
-            <div style={{ display: 'inline-block', marginRight: '16px' }}>
-              <Image
-                src="/images/kamo1.png"
-                alt="かも(緑)"
-                width={80}
-                height={80}
-              />
-            </div>
-            <div style={{ display: 'inline-block' }}>
-              <Image
-                src="/images/kamo2.png"
-                alt="かも(灰)"
-                width={80}
-                height={80}
-              />
-            </div>
-          </div>
+            はじめる
+          </Link>
 
-          {/* 髪の質感診断ボタン */}
-          <div style={{ marginBottom: '1.5rem' }}>
-            <p style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>
-              美容師さんの目視診断
-            </p>
-            <button
-              onClick={handleHairCheck} // クリック時にページ遷移
-              style={{
-                display: 'inline-block',
-                width: '100%',
-                padding: '1rem',
-                backgroundColor: '#f5f5f5',
-                border: '1px solid #ccc',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: '1rem',
-              }}
-            >
-              髪の質感診断
-            </button>
-          </div>
-
-          {/* 画像AI診断ボタン */}
-          <div style={{ marginBottom: '2rem' }}>
-            <p style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>
-              問診と画像で診断
-            </p>
-            <button
-              onClick={handleAiCheck} // クリック時にページ遷移
-              style={{
-                display: 'inline-block',
-                width: '100%',
-                padding: '1rem',
-                backgroundColor: '#cfefff',
-                border: '1px solid #9fe0ff',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: '1rem',
-              }}
-            >
-              画像AI診断
-            </button>
-          </div>
-
-          {/* ログインリンク */}
-          <div style={{ marginBottom: '1rem' }}>
-            アカウントをお持ちの方はこちら{' '}
-            <Link
-              href="/login"
-              style={{
-                color: '#0070f3',
-                textDecoration: 'underline',
-              }}
-            >
+          <div className={styles.loginContainer}>
+            <span className={styles.loginText}>アカウントをお持ちの方はこちら</span>
+            <Link href="#" className={styles.loginLink}>
               ログイン
             </Link>
           </div>
 
-          {/* 管理者ログインリンク */}
-          <div>
-            <Link
-              href="/admin"
-              style={{
-                color: '#0070f3',
-                textDecoration: 'underline',
-              }}
-            >
-              管理者ログインはこちら
-            </Link>
-          </div>
-        </main>
+          <Link href="#" className={styles.adminLink}>
+            管理者ログインはこちら
+          </Link>
+        </div>
       </div>
-    </>
-  )
+    </div>
+  );
 }
-
