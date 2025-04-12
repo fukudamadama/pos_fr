@@ -198,9 +198,16 @@
 
 import React, { useState } from "react"
 import { ChevronDown } from "lucide-react"
+import { Label } from "../../components/label"; //backend直したら消す
+import { Input } from "../../components/input"; //backend直したら消す
+import { RadioGroup, RadioGroupItem } from "../../components/radio-group"; //backend直したら消す
+
 
 export default function HairQuality() {
   const [form, setForm] = useState({
+    nickname: "",
+    age: "",
+    gender: "",
     density: "",
     hair_loss: "",
     scalp: [],
@@ -228,6 +235,9 @@ export default function HairQuality() {
   }
 
   const isFormValid =
+    form.nickname &&
+    form.age &&
+    form.gender &&
     form.density &&
     form.hair_loss &&
     form.scalp.length > 0 &&
@@ -310,6 +320,40 @@ export default function HairQuality() {
 
       {/* フォーム - フレックスグロウで下部にボタンを固定 */}
       <div className="space-y-4 flex-grow">
+        {/* backend直したらここから消す */}
+        <div>
+        <Label htmlFor="nickname" className="block mb-1">お客様のお名前</Label>
+         <Input id="nickname" placeholder="お客様のお名前" value={form.nickname} onChange={(e) => handleChange("nickname", e.target.value)} />
+         </div>
+
+         <div>
+         <Label htmlFor="age" className="block mb-1">年齢</Label>
+         <select id="age" className="w-full border rounded px-3 py-2" onChange={(e) => handleChange("age", e.target.value)} value={form.age}>
+           <option value="">年齢を選択</option>
+            {[...Array(53)].map((_, i) => (
+             <option key={i} value={i + 18}>{i + 18}歳</option>
+           ))}
+         </select>
+         </div>
+
+
+         <div>
+         <Label className="block mb-1">性別</Label>
+         <RadioGroup 
+           value={form.gender}
+           onValueChange={(value) => handleChange("gender", value)}
+           className="flex gap-4"
+           >
+           {['男性','女性'].map(option => (
+             <div key={option} className="flex items-center space-x-2">
+               <RadioGroupItem value={option} id={`gender-${option}`} />
+               <Label htmlFor={`gender-${option}`}>{option}</Label>
+             </div>
+           ))}
+         </RadioGroup>
+         </div>
+         {/* backend直したらここまで消す */}
+
         {/* 髪の密度 */}
         <div>
           <label className="block mb-1 text-gray-600 text-sm">髪の密度</label>
