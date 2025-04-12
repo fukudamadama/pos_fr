@@ -1,7 +1,4 @@
-// export default function Home() {
-//   return <h1>Hello World</h1>
-// }
-
+"use client"
 // 20250405これ以降が追記部分
 import Image from "next/image"
 import Link from "next/link"
@@ -29,34 +26,68 @@ export default function WelcomePage() {
 
         <h2 className={styles.appName}>かもかも診断</h2>
 
-        <div className={styles.charactersContainer}>
-          <div className={styles.characterImage}>
-            <Image src="/images/kamo1.png" alt="緑色のかも" width={144} height={144} />
+        {/* キャラクター画像＋キャッチコピー */}
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <div style={{ display: 'inline-block', marginRight: '16px' }}>
+            <Image
+              src="/images/kamo1.png"
+              alt="かも(緑)"
+              width={80}
+              height={80}
+              style={{
+                animation: 'float 1s ease-in-out infinite',
+              }}
+            />
           </div>
-          <div className={styles.characterImage}>
-            <Image src="/images/kamo2.png" alt="灰色のかも" width={144} height={144} />
+          <div style={{ display: 'inline-block' }}>
+            <Image
+              src="/images/kamo2.png"
+              alt="かも(灰)"
+              width={80}
+              height={80}
+              style={{
+                animation: 'float 2s ease-in-out infinite',
+              }}
+            />
           </div>
         </div>
-      </div>
 
-      {/* ボタンとリンク */}
-      <div className={styles.buttonsContainer}>
-        <Link href="https://app-002-step3-2-node-oshima2.azurewebsites.net/kamokamo/hairQuality" className={styles.startButton}>
-          はじめる
-        </Link>
+        {/* アニメーション用CSS */}
+        <style jsx global>{`
+          @keyframes float {
+            0% {
+              transform: translateY(0px);
+            }
+            50% {
+              transform: translateY(-8px);
+            }
+            100% {
+              transform: translateY(0px);
+            }
+          }
+        `}</style>
 
-        <div className={styles.loginContainer}>
-          <span className={styles.loginText}>アカウントをお持ちの方はこちら</span>
-          <Link href="#" className={styles.loginLink}>
-            ログイン
+        {/* ボタンとリンク */}
+        <div className={styles.buttonsContainer}>
+          <Link
+            href="https://app-002-step3-2-node-oshima2.azurewebsites.net/kamokamo/hairQuality"
+            className={styles.startButton}
+          >
+            はじめる
+          </Link>
+
+          <div className={styles.loginContainer}>
+            <span className={styles.loginText}>アカウントをお持ちの方はこちら</span>
+            <Link href="#" className={styles.loginLink}>
+              ログイン
+            </Link>
+          </div>
+
+          <Link href="#" className={styles.adminLink}>
+            管理者ログインはこちら
           </Link>
         </div>
-
-        <Link href="#" className={styles.adminLink}>
-          管理者ログインはこちら
-        </Link>
       </div>
     </div>
-  )
+  );
 }
-
