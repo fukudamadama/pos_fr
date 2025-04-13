@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useRef, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Camera } from 'lucide-react';
 
-
 export default function DiagnosticCheckPage() {
+  const router = useRouter();
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
 
@@ -52,14 +53,15 @@ export default function DiagnosticCheckPage() {
     setIsCaptured(true); 
   };
 
-  // 「診断開始」ボタン
+
+  // 「診断開始」ボタン（修正ポイント）
   const handleDiagnose = async () => {
     if (!imageData) {
       alert('画像がありません。先に撮影してください。');
       return;
     }
     try {
-      // Base64 → Blob → File → FormData の流れでAPIに送信
+      // === 1) まず /classify-hair/ に画像を送って髪の診断結果を取得 ===
       const blob = await (await fetch(imageData)).blob();
       const file = new File([blob], 'scalp.png', { type: 'image/png' });
       const formData = new FormData();
@@ -73,9 +75,29 @@ export default function DiagnosticCheckPage() {
         throw new Error(`Server error: ${res.status}`);
       }
 
-      const data = await res.json();
-      console.log('診断結果:', data);
-      alert(`診断結果: ${data.result}\nスコア: ${data.score}\nアドバイス: ${data.advice}`);
+      const hairData = await res.json();
+      console.log('髪の診断結果:', hairData);
+
+      // === 2) 次に /diagnostic_kamo/ に、上で得た髪の診断結果を送る ===
+      // ここでは例として「hairData.result」を question として送信している
+      // 必要に応じて hairData 全体を渡してもOK
+      const diagRes = await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/diagnostic_kamo/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hageLevel: hairData.result })
+      });
+      if (!diagRes.ok) {
+        throw new Error(`DiagnosticKamo error: ${diagRes.status}`);
+      }
+
+      const diagData = await diagRes.json();
+      console.log('GPT診断コメント:', diagData);
+
+      // === 3) ページ遷移し、診断データをクエリパラメータなどに乗せて渡す ===
+      // 例: '/result' ページに answer を持たせて遷移
+      // 注: データが大きい場合は状態管理やlocalStorage等を検討
+      router.push(`/kamokamo/hairQuality/hairQuestionYou/diagnostic-imaging/result?answer=${encodeURIComponent(JSON.stringify(diagData))}`);
+
     } catch (error) {
       console.error('診断失敗:', error);
       alert('診断に失敗しました。');
