@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { ChevronDown } from "lucide-react"
 
@@ -25,12 +25,22 @@ export default function HairQuestionYou() {
     futureaga: "",
     sindan: ""
   })
+  
+  const [isFormValid, setIsFormValid] = useState(false)
+
+  // フォームの値が変更されるたびにバリデーションチェック
+  useEffect(() => {
+    const valid = Object.values(form).every((v) => v !== "")
+    setIsFormValid(valid)
+  }, [form])
 
   const handleChange = (field, value) => {
-    setForm({ ...form, [field]: value })
+    console.log(`Updating field: ${field} with value: ${value}`)
+    setForm(prevState => ({
+      ...prevState,
+      [field]: value
+    }))
   }
-
-  const isFormValid = Object.values(form).every((v) => v !== "")
 
   const handleSubmit = async () => {
     try {
@@ -57,7 +67,6 @@ export default function HairQuestionYou() {
   
       const result = await response.json();
       console.log("送信成功:", result);
-      alert("送信が完了しました！");
 
       // hairQualityId付きで次のステップへ
       router.push(`/kamokamo/hairQuality/${hairQualityId}/hairQuestionYou/diagnostic-imaging`);
@@ -75,7 +84,7 @@ export default function HairQuestionYou() {
   ]
 
   const selectFields = [
-    { id: "age", label: "年齢", options: [...Array(53)].map((_, i) => `${i + 18}歳`) },
+    { id: "age", label: "年齢", options: [...Array(53)].map((_, i) => i + 18) },
     { id: "gender", label: "性別", options: ["男性", "女性", "その他"] },
     { id: "bloodtype", label: "血液型", options: ["A型", "B型", "O型", "AB型", "その他", "わからない"] },
     { id: "occupation", label: "ご職業", options: ["会社員", "公務員", "自営業", "フリーランス", "学生", "主婦/主夫", "パート・アルバイト", "専門職（医師、弁護士、技術者など）", "農業・漁業", "教育関係者", "アーティスト／クリエイター", "無職"] },

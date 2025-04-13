@@ -44,7 +44,7 @@ export default function HairQuality() {
 
     const handleSubmit = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/hairQuality`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/kamokamo/hairQuality`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -56,13 +56,17 @@ export default function HairQuality() {
           throw new Error("データの送信に失敗しました");
         }
     
+        const result = await response.json(); // ← ここでレスポンス受け取る
+        const hairQualityId = result.id;
+    
         // 保存成功 → 遷移
-        router.push("/kamokamo/hairQuality/hairQuestionYou");
+        router.push(`/kamokamo/hairQuality/${hairQualityId}/hairQuestionYou`);
       } catch (error) {
         console.error("送信エラー:", error);
         alert("送信に失敗しました。もう一度お試しください。");
       }
-    };    
+    };
+    
 
   // 各フィールドのオプション
   const options = {
