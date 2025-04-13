@@ -1,50 +1,47 @@
-// app/layout.jsx
-import { Inter } from 'next/font/google'
-import './globals.css'
-import Head from "next/head";
-import Image from "next/image";
-import Link from "next/link";
+'use client';
 
-export const metadata = {
-  title: "かもかも診断",
-  description: "あなたの髪の毛の今と将来をAIで診断するアプリ",
-};
+import './globals.css';
+import Link from "next/link";
+import { usePathname } from 'next/navigation';
 
 export default function RootLayout({ children }) {
+  const pathname = usePathname();
+  const isKamokamo = pathname === '/kamokamo'; // ← /kamokamo だけheaderなし
+
   return (
     <html lang="ja">
       <body
         style={{
           maxWidth: "480px",
           margin: "0 auto",
-          padding: "1rem",
+          padding: isKamokamo ? "0" : "1rem", // ← /kamokamo だけ余白なし
         }}
       >
-        {/* ヘッダー */}
-        <header
-          style={{
-            display: "flex",
-            alignItems: "center",
-            marginBottom: "1rem",
-          }}
-        >
-          {/* タイトル部分をLinkで包む */}
-          <Link
-            href="/kamokamo"   // クリックで /kamokamo ページへ遷移
+        {/* ヘッダー（/kamokamo では非表示） */}
+        {!isKamokamo && (
+          <header
             style={{
-              textDecoration: "none",  
-              color: "inherit",        
-              display: "flex",         
+              display: "flex",
               alignItems: "center",
+              marginBottom: "1rem",
             }}
           >
-            <h1 style={{ fontSize: "1.25rem", margin: 0, cursor: 'pointer' }}>
-              かもかも診断
-            </h1>
-          </Link>
-        </header>
+            <Link
+              href="/kamokamo"
+              style={{
+                textDecoration: "none",  
+                color: "inherit",        
+                display: "flex",         
+                alignItems: "center",
+              }}
+            >
+              <h1 style={{ fontSize: "1.25rem", margin: 0, cursor: 'pointer' }}>
+                かもかも診断
+              </h1>
+            </Link>
+          </header>
+        )}
 
-        {/* 子ページのコンテンツ */}
         {children}
       </body>
     </html>
