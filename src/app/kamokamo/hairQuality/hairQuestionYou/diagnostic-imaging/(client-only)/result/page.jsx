@@ -1,6 +1,7 @@
 "use client";
 export const dynamic = "force-dynamic";
 
+import { Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React from 'react';
 import {
@@ -29,14 +30,28 @@ const lifestyleRisks = [
   { label: '生活習慣', level: 'low' },
 ];
 
-function ResultPage() {
+export default function ResultPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <InnerResult />
+    </Suspense>
+  );
+}
+
+// こっちに分けてあげる
+function InnerResult() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const rawAnswer = searchParams.get("answer");
   let parsedAnswer = null;
+
+  // 防御的なJSONパース処理を追加
   try {
-    parsedAnswer = JSON.parse(JSON.parse(rawAnswer).answer); // 二重JSONを解凍
+    if (rawAnswer) {
+      const firstParse = JSON.parse(rawAnswer);
+      parsedAnswer = JSON.parse(firstParse.answer);
+    }
   } catch (e) {
     console.error("診断データの読み取りに失敗しました", e);
   }
@@ -249,5 +264,3 @@ function ResultPage() {
     </div>
   );
 }
-
-export default ResultPage;
