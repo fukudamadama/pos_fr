@@ -35,8 +35,13 @@ function ResultPage() {
 
   const rawAnswer = searchParams.get("answer");
   let parsedAnswer = null;
+
+  // 防御的なJSONパース処理を追加
   try {
-    parsedAnswer = JSON.parse(JSON.parse(rawAnswer).answer); // 二重JSONを解凍
+    if (rawAnswer) {
+      const firstParse = JSON.parse(rawAnswer);
+      parsedAnswer = JSON.parse(firstParse.answer);
+    }
   } catch (e) {
     console.error("診断データの読み取りに失敗しました", e);
   }
