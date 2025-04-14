@@ -73,13 +73,8 @@ function InnerResult() {
       <header className="bg-white shadow-sm">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-4">
-            {/* <button className="text-gray-600 flex items-center gap-1">
-              <ArrowLeft size={20} /> 戻る
-            </button> */}
-            <div className="flex items-center gap-2 w-full">
-              <div className="bg-gray-200 h-2 rounded-full w-full">
-                <div className="bg-[#A2D7DB] h-2 rounded-full w-full"></div>
-              </div>
+            <div className="w-full flex justify-center">
+              <p className="text-sm text-gray-500">ここまでお疲れ様でした...！</p>
             </div>
           </div>
         </div>
