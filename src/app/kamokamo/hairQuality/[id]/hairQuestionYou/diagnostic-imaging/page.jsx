@@ -98,7 +98,7 @@ export default function DiagnosticCheckPage() {
       // === 3) ページ遷移し、診断データをクエリパラメータなどに乗せて渡す ===
       // 例: '/result' ページに answer を持たせて遷移
       // 注: データが大きい場合は状態管理やlocalStorage等を検討
-      router.push(`/kamokamo/hairQuality/hairQuestionYou/diagnostic-imaging/result?answer=${encodeURIComponent(JSON.stringify(diagData))}`);
+      router.push(`/kamokamo/hairQuality/${hairQualityId}/hairQuestionYou/diagnostic-imaging/result?answer=${encodeURIComponent(JSON.stringify(diagData))}`);
 
     } catch (error) {
       console.error('診断失敗:', error);
