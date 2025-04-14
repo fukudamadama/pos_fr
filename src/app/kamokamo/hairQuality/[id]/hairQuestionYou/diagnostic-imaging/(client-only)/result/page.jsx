@@ -1,3 +1,4 @@
+// 結果ページかも
 "use client";
 export const dynamic = "force-dynamic";
 
