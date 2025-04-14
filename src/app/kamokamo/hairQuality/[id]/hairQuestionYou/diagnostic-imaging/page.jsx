@@ -3,7 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import React, { useRef, useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { Camera } from 'lucide-react';
 
 export default function DiagnosticCheckPage() {
@@ -57,54 +57,110 @@ export default function DiagnosticCheckPage() {
 
 
   // 「診断開始」ボタン（修正ポイント）
-  const handleDiagnose = async () => {
-    if (!imageData) {
-      alert('画像がありません。先に撮影してください。');
-      return;
-    }
-    try {
-      // === 1) まず /classify-hair/ に画像を送って髪の診断結果を取得 ===
-      const blob = await (await fetch(imageData)).blob();
-      const file = new File([blob], 'scalp.png', { type: 'image/png' });
-      const formData = new FormData();
-      formData.append('file', file);
+  // const handleDiagnose = async () => {
+  //   if (!imageData) {
+  //     alert('画像がありません。先に撮影してください。');
+  //     return;
+  //   }
+  //   try {
+  //     // === 1) まず /classify-hair/ に画像を送って髪の診断結果を取得 ===
+  //     const blob = await (await fetch(imageData)).blob();
+  //     const file = new File([blob], 'scalp.png', { type: 'image/png' });
+  //     const formData = new FormData();
+  //     formData.append('file', file);
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/classify-hair/`, {
-        method: 'POST',
-        body: formData,
-      });
-      if (!res.ok) {
-        throw new Error(`Server error: ${res.status}`);
+  //     const res = await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/classify-hair/`, {
+  //       method: 'POST',
+  //       body: formData,
+  //     });
+  //     if (!res.ok) {
+  //       throw new Error(`Server error: ${res.status}`);
+  //     }
+
+  //     const hairData = await res.json();
+  //     console.log('髪の診断結果:', hairData);
+
+  //     // === 2) 次に /diagnostic_kamo/ に、上で得た髪の診断結果を送る ===
+  //     // ここでは例として「hairData.result」を question として送信している
+  //     // 必要に応じて hairData 全体を渡してもOK
+  //     const diagRes = await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/diagnostic_kamo/`, {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify({ hageLevel: hairData.result })
+  //     });
+  //     if (!diagRes.ok) {
+  //       throw new Error(`DiagnosticKamo error: ${diagRes.status}`);
+  //     }
+
+  //     const diagData = await diagRes.json();
+  //     console.log('GPT診断コメント:', diagData);
+
+  //     // === 3) ページ遷移し、診断データをクエリパラメータなどに乗せて渡す ===
+  //     // 例: '/result' ページに answer を持たせて遷移
+  //     // 注: データが大きい場合は状態管理やlocalStorage等を検討
+  //     router.push(`/kamokamo/hairQuality/${hairQualityId}/hairQuestionYou/diagnostic-imaging/result?answer=${encodeURIComponent(JSON.stringify(diagData))}`);
+
+  //   } catch (error) {
+  //     console.error('診断失敗:', error);
+  //     alert('診断に失敗しました。');
+  //   }
+  // };
+
+  export default function DiagnosticImaging() {
+    const router = useRouter();
+    const params = useParams();
+    const hairQualityId = params?.id;
+  
+    const [imageData, setImageData] = useState(null); // カメラで撮った画像など
+  
+    const handleDiagnose = async () => {
+      if (!imageData) {
+        alert('画像がありません。先に撮影してください。');
+        return;
       }
-
-      const hairData = await res.json();
-      console.log('髪の診断結果:', hairData);
-
-      // === 2) 次に /diagnostic_kamo/ に、上で得た髪の診断結果を送る ===
-      // ここでは例として「hairData.result」を question として送信している
-      // 必要に応じて hairData 全体を渡してもOK
-      const diagRes = await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/diagnostic_kamo/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ hageLevel: hairData.result })
-      });
-      if (!diagRes.ok) {
-        throw new Error(`DiagnosticKamo error: ${diagRes.status}`);
+  
+      if (!hairQualityId) {
+        alert('hairQualityIdが取得できませんでした。');
+        return;
       }
-
-      const diagData = await diagRes.json();
-      console.log('GPT診断コメント:', diagData);
-
-      // === 3) ページ遷移し、診断データをクエリパラメータなどに乗せて渡す ===
-      // 例: '/result' ページに answer を持たせて遷移
-      // 注: データが大きい場合は状態管理やlocalStorage等を検討
-      router.push(`/kamokamo/hairQuality/${hairQualityId}/hairQuestionYou/diagnostic-imaging/result?answer=${encodeURIComponent(JSON.stringify(diagData))}`);
-
-    } catch (error) {
-      console.error('診断失敗:', error);
-      alert('診断に失敗しました。');
-    }
-  };
+  
+      try {
+        // 1. 画像を送って診断
+        const blob = await (await fetch(imageData)).blob();
+        const file = new File([blob], 'scalp.png', { type: 'image/png' });
+        const formData = new FormData();
+        formData.append('file', file);
+  
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/classify-hair/`, {
+          method: 'POST',
+          body: formData,
+        });
+  
+        if (!res.ok) throw new Error(`Server error: ${res.status}`);
+  
+        const hairData = await res.json();
+        console.log('髪の診断結果:', hairData);
+  
+        // 2. GPT診断コメントを取得
+        const diagRes = await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/diagnostic_kamo/`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ hageLevel: hairData.result })
+        });
+  
+        if (!diagRes.ok) throw new Error(`DiagnosticKamo error: ${diagRes.status}`);
+  
+        const diagData = await diagRes.json();
+        console.log('GPT診断コメント:', diagData);
+  
+        // 3. 結果ページに遷移（クエリに診断データを乗せて渡す）
+        router.push(`/kamokamo/hairQuality/${hairQualityId}/hairQuestionYou/diagnostic-imaging/result?answer=${encodeURIComponent(JSON.stringify(diagData))}`);
+  
+      } catch (error) {
+        console.error('診断失敗:', error);
+        alert('診断に失敗しました。');
+      }
+    };
 
   // 「再撮影」ボタン
   // // カメラをもう一度起動するようにする
