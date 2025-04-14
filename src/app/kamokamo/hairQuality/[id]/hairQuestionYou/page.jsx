@@ -50,7 +50,7 @@ export default function HairQuestionYou() {
         return;
       }
   
-      const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+      const apiBaseUrl = process.env.NEXT_PUBLIC_API_ENDPOINT;
       const response = await fetch(`${apiBaseUrl}/kamokamo/hairQuality/${hairQualityId}/hairQuestionYou`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

@@ -44,7 +44,7 @@ export default function HairQuality() {
 
     const handleSubmit = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/kamokamo/hairQuality`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_ENDPOINT}/kamokamo/hairQuality`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
