@@ -1,6 +1,7 @@
 "use client";
 export const dynamic = "force-dynamic";
 
+import { Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React from 'react';
 import {
@@ -29,7 +30,16 @@ const lifestyleRisks = [
   { label: '生活習慣', level: 'low' },
 ];
 
-function ResultPage() {
+export default function ResultPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <InnerResult />
+    </Suspense>
+  );
+}
+
+// こっちに分けてあげる
+function InnerResult() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -254,5 +264,3 @@ function ResultPage() {
     </div>
   );
 }
-
-export default ResultPage;
