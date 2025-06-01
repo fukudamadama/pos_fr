@@ -1,8 +1,14 @@
+// jsconfig.json（プロジェクト直下に置く）
 {
   "compilerOptions": {
-    "baseUrl": ".",
+    // “src” を基準にする
+    "baseUrl": "src",
     "paths": {
-      "@/*": ["src/*"]
+      "@/components/*": ["components/*"],
+      "@/hooks/*":      ["hooks/*"],
+      "@/lib/*":        ["lib/*"],      // ← ここを追加
+      "@/app/*":        ["app/*"],
+      "@/styles/*":     ["styles/*"]
     }
   }
 }
