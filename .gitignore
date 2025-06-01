@@ -7,6 +7,9 @@ dependencies
 .pnp.js
 .yarn/install-state.gz
 
+# ＠
+/@/
+
 # testing
 /coverage
 
