@@ -1,58 +1,91 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Camera, Plus, ShoppingCart, Trash2, Check } from "lucide-react"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-
-// サンプル商品データベース
-const productDatabase = [
-  { id: "1", code: "12345678901", name: "おーいお茶", price: 150 },
-  { id: "2", code: "12345678902", name: "ソフラン", price: 300 },
-  { id: "3", code: "12345678903", name: "福島産ほうれん草", price: 188 },
-  { id: "4", code: "12345678904", name: "タイガー歯ブラシ青", price: 200 },
-  { id: "5", code: "12345678905", name: "四ツ谷サイダー", price: 160 },
-]
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Camera, Plus, ShoppingCart, Trash2, Check } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function POSApp() {
-  const [scannedCode, setScannedCode] = useState("")
-  const [currentProduct, setCurrentProduct] = useState(null)
-  const [cart, setCart] = useState([])
-  const [isScanning, setIsScanning] = useState(false)
-  const [showCheckout, setShowCheckout] = useState(false)
-  const [manualCode, setManualCode] = useState("")
+  const [scannedCode, setScannedCode] = useState("");
+  const [currentProduct, setCurrentProduct] = useState(null);
+  const [cart, setCart] = useState([]);
+  const [isScanning, setIsScanning] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [manualCode, setManualCode] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  // 商品検索
-  const searchProduct = (code) => {
-    const product = productDatabase.find((p) => p.code === code)
-    if (product) {
-      setCurrentProduct(product)
-      setScannedCode(code)
-    } else {
-      setCurrentProduct(null)
-      setScannedCode(code)
+  // バックエンドのベース URL (環境変数から取得)
+  const API_BASE = process.env.NEXT_PUBLIC_API_ENDPOINT || "";
+
+  // ─── 1) バックエンドから商品を取得する関数 ───
+  const fetchProduct = async (code) => {
+    try {
+      const res = await fetch(`${API_BASE}/products/${encodeURIComponent(code)}`);
+      if (res.ok) {
+        const data = await res.json();
+        return {
+          prd_id: data.prd_id,
+          code: data.code,
+          name: data.name,
+          price: data.price,
+        };
+      } else if (res.status === 404) {
+        return null;
+      } else {
+        console.error("予期しないエラー:", res.status);
+        return null;
+      }
+    } catch (err) {
+      console.error("バックエンド呼び出しエラー:", err);
+      return null;
     }
-  }
+  };
 
-  // カートに商品追加
+  // ─── 2) 商品検索 ───
+  const searchProduct = async (code) => {
+    if (!code.trim()) return;
+    setErrorMessage("");
+    setCurrentProduct(null);
+    setScannedCode(code);
+
+    const product = await fetchProduct(code.trim());
+    if (product) {
+      setCurrentProduct(product);
+    } else {
+      setCurrentProduct(null);
+      setErrorMessage("商品が見つかりませんでした。コードを確認してください。");
+    }
+  };
+
+  // ─── 3) カートに商品追加 ───
   const addToCart = () => {
-    if (!currentProduct) return
+    if (!currentProduct) return;
 
-    const existingItem = cart.find((item) => item.id === currentProduct.id)
+    const existingItem = cart.find((item) => item.prd_id === currentProduct.prd_id);
 
     if (existingItem) {
       setCart(
         cart.map((item) =>
-          item.id === currentProduct.id
-            ? { ...item, quantity: item.quantity + 1, total: (item.quantity + 1) * item.price }
-            : item,
-        ),
-      )
+          item.prd_id === currentProduct.prd_id
+            ? {
+                ...item,
+                quantity: item.quantity + 1,
+                total: (item.quantity + 1) * item.price,
+              }
+            : item
+        )
+      );
     } else {
       setCart([
         ...cart,
@@ -61,51 +94,102 @@ export default function POSApp() {
           quantity: 1,
           total: currentProduct.price,
         },
-      ])
+      ]);
     }
 
     // リセット
-    setCurrentProduct(null)
-    setScannedCode("")
-    setManualCode("")
-  }
+    setCurrentProduct(null);
+    setScannedCode("");
+    setManualCode("");
+    setErrorMessage("");
+  };
 
-  // カートから商品削除
-  const removeFromCart = (id) => {
-    setCart(cart.filter((item) => item.id !== id))
-  }
+  // ─── 4) カートから商品削除 ───
+  const removeFromCart = (prd_id) => {
+    setCart(cart.filter((item) => item.prd_id !== prd_id));
+  };
 
-  // 合計計算
-  const subtotal = cart.reduce((sum, item) => sum + item.total, 0)
-  const tax = Math.floor(subtotal * 0.1)
-  const total = subtotal + tax
+  // ─── 5) 合計計算 ───
+  const subtotal = cart.reduce((sum, item) => sum + item.total, 0);
+  const tax = Math.floor(subtotal * 0.1);
+  const total = subtotal + tax;
 
-  // カメラスキャンシミュレーション
+  // ─── 6) カメラスキャンシミュレーション ───
   const simulateBarcodeScan = () => {
-    setIsScanning(true)
+    setIsScanning(true);
+    setErrorMessage("");
     // ランダムな商品コードを生成（実際のアプリではカメラAPIを使用）
-    setTimeout(() => {
-      const randomProduct = productDatabase[Math.floor(Math.random() * productDatabase.length)]
-      searchProduct(randomProduct.code)
-      setIsScanning(false)
-    }, 2000)
-  }
+    setTimeout(async () => {
+      // ここだけは既知のダミーデータを使う／もしくは user が事前に productDatabase をダウンロードしておく
+      // 本番ではカメラから読み取ったバーコードを code にセットする
+      const dummyCodes = ["4901681562916", "4901681562923", "4901681562930"];
+      const randomCode = dummyCodes[Math.floor(Math.random() * dummyCodes.length)];
+      await searchProduct(randomCode);
+      setIsScanning(false);
+    }, 1500);
+  };
 
-  // 手動コード入力
-  const handleManualSearch = () => {
+  // ─── 7) 手動コード入力 ───
+  const handleManualSearch = async () => {
     if (manualCode.trim()) {
-      searchProduct(manualCode.trim())
+      await searchProduct(manualCode.trim());
     }
-  }
+  };
 
-  // 購入完了
-  const completePurchase = () => {
-    // 実際のアプリではここでデータベースに保存
-    console.log("購入完了:", { cart, subtotal, tax, total })
-    setCart([])
-    setShowCheckout(false)
-    alert("購入が完了しました！")
-  }
+  // ─── 8) 購入完了時：バックエンドに保存 ───
+  const completePurchase = async () => {
+    setErrorMessage("");
+
+    // まずは取引ヘッダを作成する
+    try {
+      const headerPayload = {
+        emp_cd: "E000000001",     // 固定値 or ログインユーザーの社員コード
+        store_cd: "S001",         // 固定または選択された店舗コード
+        pos_no: "001",            // 固定 or 選択されたPOS機番
+        total_amt: total,
+        ttl_amt_ex_tax: subtotal,
+      };
+      const resHeader = await fetch(`${API_BASE}/transactions/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(headerPayload),
+      });
+      if (!resHeader.ok) {
+        throw new Error(`取引ヘッダ作成エラー: ${resHeader.status}`);
+      }
+      const headerData = await resHeader.json();
+      const trd_id = headerData.trd_id;
+
+      // つぎに、カート内の各商品を明細テーブルに登録する
+      for (const item of cart) {
+        const detailPayload = {
+          trd_id: trd_id,
+          prd_id: item.prd_id,
+          prd_code: item.code,
+          prd_name: item.name,
+          prd_price: item.price,
+          tax_cd: "10", // 固定で10%とする例
+        };
+        const resDetail = await fetch(`${API_BASE}/transactions/${trd_id}/details/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(detailPayload),
+        });
+        if (!resDetail.ok) {
+          throw new Error(`明細登録エラー (prd_id: ${item.prd_id}): ${resDetail.status}`);
+        }
+      }
+
+      // 最終的に購入完了ポップアップを表示
+      setCart([]);
+      setShowCheckout(false);
+      alert(`購入が完了しました！\n合計 (税込): ${total}円\n税抜: ${subtotal}円`);
+    } catch (err) {
+      console.error(err);
+      setErrorMessage("購入処理中にエラーが発生しました。再度お試しください。");
+      setShowCheckout(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
@@ -116,6 +200,13 @@ export default function POSApp() {
             <CardTitle className="text-xl font-bold text-blue-600">モバイルPOSアプリ</CardTitle>
           </CardHeader>
         </Card>
+
+        {/* エラー表示 */}
+        {errorMessage && (
+          <Alert variant="destructive">
+            <AlertDescription>{errorMessage}</AlertDescription>
+          </Alert>
+        )}
 
         {/* スキャンエリア */}
         <Card>
@@ -164,8 +255,8 @@ export default function POSApp() {
                   追加
                 </Button>
               </div>
-            ) : scannedCode ? (
-              <Alert>
+            ) : scannedCode && !isScanning ? (
+              <Alert variant="warning">
                 <AlertDescription>商品が見つかりませんでした。コードを確認してください。</AlertDescription>
               </Alert>
             ) : null}
@@ -187,14 +278,14 @@ export default function POSApp() {
             ) : (
               <div className="space-y-2">
                 {cart.map((item) => (
-                  <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded">
+                  <div key={item.prd_id} className="flex items-center justify-between p-3 bg-gray-50 rounded">
                     <div className="flex-1">
                       <div className="font-medium">{item.name}</div>
                       <div className="text-sm text-gray-600">
                         x{item.quantity} {item.price}円 = {item.total}円
                       </div>
                     </div>
-                    <Button onClick={() => removeFromCart(item.id)} variant="outline" size="sm">
+                    <Button onClick={() => removeFromCart(item.prd_id)} variant="outline" size="sm">
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -252,5 +343,5 @@ export default function POSApp() {
         )}
       </div>
     </div>
-  )
+  );
 }
