@@ -57,3 +57,5 @@ DigiCertGlobalRootCA.crt.pem
 .settings/
 *.sublime-workspace
 .vscode/
+certificates
+src/app/pos/taihi/
